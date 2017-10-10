@@ -21,6 +21,7 @@ var baseURL = "http://www.dm5.com";
 	for(let i=lastDownLoadMark.lastMHNo;i<titleArray.length;i++){
 		var mhName = titleArray[i].title;//获取漫画的名称
 		var chapeterArray = titleArray[i].chapeterArray;//获取漫画的章节
+		// 由于漫画命中有冒号,导致无法创建目录,因此要将冒号转换成其他字符
 		var maoHoaIndex = mhName.indexOf(":");
 		if (maoHoaIndex!=-1) {
 			mhName=mhName.replace(/\:/g,"-");
@@ -79,7 +80,7 @@ var baseURL = "http://www.dm5.com";
 					lastDownLoadMark.lastPageNo = 0;
 					lastDownLoadMark.lastChapter = 0;
 				}
-				await site.sleep(3000);
+				await site.sleep(2000);
 			}
 		}
 
@@ -97,6 +98,7 @@ process.on('SIGINT', async function() {
 });
 
 process.on('uncaughtException', async function (err) {
+   console.log("出现异常退出了");
   //打印出错误
   console.log(err);
   //打印出错误的调用栈方便调试
