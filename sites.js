@@ -64,13 +64,22 @@ class Sites {
 		    var url = requestData.url;
 		    if (website == "dm5") {
 			    if (url.indexOf('cid')!=-1 && url.indexOf("key")!=-1 && (url.indexOf('png')!=-1 ||url.indexOf('jpg')!=-1)) {
-						resolve(url);
+						console.log("退出phantom");
+		
+						(async function(){
+							var obj = {
+									url: url,
+								}							
+							await instance.exit();
+							resolve(obj);
+
+						}())
 					}	
 			    }
 		    });
 		 
 		    const status = await page.open(DownLoadPageURL);
-		    await instance.exit();
+
 		}());
 		})
 	}
