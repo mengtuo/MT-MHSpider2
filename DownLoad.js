@@ -21,6 +21,12 @@ var baseURL = "http://www.dm5.com";
 	for(let i=lastDownLoadMark.lastMHNo;i<titleArray.length;i++){
 		var mhName = titleArray[i].title;//获取漫画的名称
 		var chapeterArray = titleArray[i].chapeterArray;//获取漫画的章节
+		var maoHoaIndex = mhName.indexOf(":");
+		if (maoHoaIndex!=-1) {
+			mhName=mhName.replace(/\:/g,"-");
+			console.log("mhName="+mhName);
+		}
+
 		await site.createDir(__dirname+"/"+CategoryTitle+"/"+mhName)
 		// k代表当前漫画第几章,lastDownLoadMark.lastChapter代表最后一次下载到的章节
 		for(var k=lastDownLoadMark.lastChapter;k<chapeterArray.length;k++){
@@ -28,6 +34,10 @@ var baseURL = "http://www.dm5.com";
 			console.log(lastDownLoadMark.lastPageNo);
 			var title = chapeterArray[k].title;
 			var href = chapeterArray[k].href;
+			if (title.indexOf(":")!=-1) {
+				title=title.replace(/\:/g,"-");
+				console.log("mhName="+title);
+			}
 			var folderPath = __dirname+"/"+CategoryTitle+"/"+mhName+"/"+title;
 			//获取每一章漫画的总页数
 			var chapeterData = await site.asyncHttp(baseURL+href);
@@ -85,6 +95,14 @@ process.on('SIGINT', async function() {
   	console.log("强制退出程序");
   	process.exit()
 });
+
+process.on('uncaughtException', async function (err) {
+  //打印出错误
+  console.log(err);
+  //打印出错误的调用栈方便调试
+  console.log(err.stack);
+  await site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
+});
 /*
 	下载图片
 	url: '图片地址',
@@ -111,8 +129,8 @@ process.on('SIGINT', async function() {
         	console.log(error);
             console.log('解析 HTML 错误或通讯故障。');  
             // downloadFile.apply(this,arguments)
-            downloadFile(url,filename,folderPath,referrer,callback);
 			site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
+            downloadFile(url,filename,folderPath,referrer,callback);
         }  
     }).pipe(stream).on('close', callback);  
 }
