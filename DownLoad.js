@@ -46,23 +46,24 @@ var baseURL = "http://www.dm5.com";
 				var fileName = j+".jpg";
 				downloadFile(imgURL,fileName,folderPath,referrer,function(){
 					console.log("图片下载完成");
-					lastDownLoadMark.lastChapter=k;//最后一次下载的章节
-					lastDownLoadMark.lastPageNo = j;// 最后一次下载的页码
-					lastDownLoadMark.lastMHNo = i;//最后一次下载
-					// site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
-					if (j==totalPage) {
-						console.log("最后一页了");
-						// 如果这是最后一页,并且下载成功,那么就
-						lastDownLoadMark.lastPageNo = 0;// 最后一次下载的页码
-						console.log(lastDownLoadMark);
-					}
-					// 最后一章的时候,进行下载下一本漫画,下载历史除了lastMHNo之外都得清零
-					if (k==titleArray.length-1) {
-						console.log("最后一章了");
-						lastDownLoadMark.lastPageNo = 0;
-						lastDownLoadMark.lastChapter = 0;
-					}
+
 				});
+				lastDownLoadMark.lastChapter=k;//最后一次下载的章节
+				lastDownLoadMark.lastPageNo = j;// 最后一次下载的页码
+				lastDownLoadMark.lastMHNo = i;//最后一次下载
+				// site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
+				if (j==totalPage) {
+					console.log("最后一页了");
+					// 如果这是最后一页,并且下载成功,那么就
+					lastDownLoadMark.lastPageNo = 0;// 最后一次下载的页码
+					console.log(lastDownLoadMark);
+				}
+				// 最后一章的时候,进行下载下一本漫画,下载历史除了lastMHNo之外都得清零
+				if (k==titleArray.length-1) {
+					console.log("最后一章了");
+					lastDownLoadMark.lastPageNo = 0;
+					lastDownLoadMark.lastChapter = 0;
+				}
 			}
 		}
 
