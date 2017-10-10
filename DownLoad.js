@@ -63,20 +63,12 @@ var baseURL = "http://www.dm5.com";
 					continue;
 				}
 				var downLoadURL = "http://www.dm5.com"+href.slice(0,-1)+'-p'+j+'/';
-<<<<<<< HEAD
 				var imgURLAndPhantomInstance = await site.getImageURL(downLoadURL,"dm5");
 				console.log("退出phantom");
 				//phantomjs实例,使用该对象的exit()函数,退出phantom实例,解决内存占用过多的问题
 				// var instance = imgURLAndPhantomInstance.instance;				
 				downloadFile(imgURLAndPhantomInstance.url,fileName,folderPath,referrer,function(){
 							console.log("图片下载完成,退出phantom实例");					
-=======
-				var imgURL = await site.getImageURL(downLoadURL,"dm5");
-				
-				downloadFile(imgURL,fileName,folderPath,referrer,function(){
-						console.log("图片下载完成");
->>>>>>> cc9fb401c0b00e25b52e72e970765fff3cf42bee
-				});
 				lastDownLoadMark.lastChapter=k;//最后一次下载的章节
 				lastDownLoadMark.lastPageNo = j;// 最后一次下载的页码
 				lastDownLoadMark.lastMHNo = i;//最后一次下载
