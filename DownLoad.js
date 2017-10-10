@@ -21,6 +21,13 @@ var baseURL = "http://www.dm5.com";
 	for(let i=lastDownLoadMark.lastMHNo;i<titleArray.length;i++){
 		var mhName = titleArray[i].title;//获取漫画的名称
 		var chapeterArray = titleArray[i].chapeterArray;//获取漫画的章节
+		// 由于漫画命中有冒号,导致无法创建目录,因此要将冒号转换成其他字符
+		var maoHoaIndex = mhName.indexOf(":");
+		if (maoHoaIndex!=-1) {
+			mhName=mhName.replace(/\:/g,"-");
+			console.log("mhName="+mhName);
+		}
+
 		await site.createDir(__dirname+"/"+CategoryTitle+"/"+mhName)
 		// k代表当前漫画第几章,lastDownLoadMark.lastChapter代表最后一次下载到的章节
 		for(var k=lastDownLoadMark.lastChapter;k<chapeterArray.length;k++){
@@ -28,6 +35,10 @@ var baseURL = "http://www.dm5.com";
 			console.log(lastDownLoadMark.lastPageNo);
 			var title = chapeterArray[k].title;
 			var href = chapeterArray[k].href;
+			if (title.indexOf(":")!=-1) {
+				title=title.replace(/\:/g,"-");
+				console.log("mhName="+title);
+			}
 			var folderPath = __dirname+"/"+CategoryTitle+"/"+mhName+"/"+title;
 			//获取每一章漫画的总页数
 			var chapeterData = await site.asyncHttp(baseURL+href);
@@ -39,14 +50,25 @@ var baseURL = "http://www.dm5.com";
 			// j代表当前下载第几页,lastDownLoadMark.lastPageNo最后一次下载完成的是第几页
 			for(var j=lastDownLoadMark.lastPageNo;j<=totalPage;j++){
 				console.log("j="+j);
+				// if (j%5==0) {
+				// 	console.log("5的倍数,暂停5秒");
+				// 	await site.sleep(5000);
+				// }
 				//为每一章漫画创建目录
 				await site.createDir(folderPath);
-				var downLoadURL = "http://www.dm5.com"+href.slice(0,-1)+'-p'+j+'/';
-				var imgURL = await site.getImageURL(downLoadURL,"dm5");
 				var fileName = j+".jpg";
-				downloadFile(imgURL,fileName,folderPath,referrer,function(){
-					console.log("图片下载完成");
-
+				var fileExits = await site.fileExits(folderPath+"/"+fileName);
+				if (fileExits) {
+					console.log("该文件已存在");
+					continue;
+				}
+				var downLoadURL = "http://www.dm5.com"+href.slice(0,-1)+'-p'+j+'/';
+				var imgURLAndPhantomInstance = await site.getImageURL(downLoadURL,"dm5");
+				console.log("退出phantom");
+				//phantomjs实例,使用该对象的exit()函数,退出phantom实例,解决内存占用过多的问题
+				// var instance = imgURLAndPhantomInstance.instance;				
+				downloadFile(imgURLAndPhantomInstance.url,fileName,folderPath,referrer,function(){
+							console.log("图片下载完成,退出phantom实例");					
 				});
 				lastDownLoadMark.lastChapter=k;//最后一次下载的章节
 				lastDownLoadMark.lastPageNo = j;// 最后一次下载的页码
@@ -64,6 +86,7 @@ var baseURL = "http://www.dm5.com";
 					lastDownLoadMark.lastPageNo = 0;
 					lastDownLoadMark.lastChapter = 0;
 				}
+				await site.sleep(2000);
 			}
 		}
 
@@ -78,6 +101,15 @@ process.on('SIGINT', async function() {
   	await site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
   	console.log("强制退出程序");
   	process.exit()
+});
+
+process.on('uncaughtException', async function (err) {
+   console.log("出现异常退出了");
+  //打印出错误
+  console.log(err);
+  //打印出错误的调用栈方便调试
+  console.log(err.stack);
+  await site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
 });
 /*
 	下载图片
@@ -105,8 +137,8 @@ process.on('SIGINT', async function() {
         	console.log(error);
             console.log('解析 HTML 错误或通讯故障。');  
             // downloadFile.apply(this,arguments)
-            downloadFile(url,filename,folderPath,referrer,callback);
 			site.writeData(lastDownLoadMark,__dirname+'/lastDownLoadMark.json');
+            downloadFile(url,filename,folderPath,referrer,callback);
         }  
     }).pipe(stream).on('close', callback);  
 }
